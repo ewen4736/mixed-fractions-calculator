@@ -1,0 +1,369 @@
+#include "stdafx.h"
+#include "MFraction.h"
+
+
+class MFractionStatistics
+{
+public:
+	MFractionStatistics()
+	{
+		m_ValidTransactionCount = 0;
+		m_CorrectlyAnsweredCount = 0;
+
+		//The following are for Extra Credit 2
+		m_WrongAdditionCount = 0;
+		m_WrongSubtractionCount = 0;
+		m_WrongMultiplicationCount = 0;
+		m_WrongDivisionCount = 0;
+
+		m_WrongAnswers.clear();
+	}
+	~MFractionStatistics() {}
+
+public:
+	int m_ValidTransactionCount; //Total count of valid transactions.
+	int m_CorrectlyAnsweredCount;
+
+	//The following are for Extra Credit 2
+	int m_WrongAdditionCount;
+	int m_WrongSubtractionCount;
+	int m_WrongMultiplicationCount;
+	int m_WrongDivisionCount;
+
+	vector<string> m_WrongAnswers;
+};
+MFractionStatistics g_MFracStats;
+
+//Function prototypes.
+bool Initialize();
+void Shutdown();
+
+bool Run(); //Main loop function.
+
+bool GetUserInputs(MFraction& mf1, string& strOperator, MFraction& mf2, bool& exitFlag);
+bool ValidateUserInputs(const MFraction& mf1, const string& strOperator, const MFraction& mf2);
+
+bool GetUserResult(MFraction& mfUser);
+bool ValidateUserResult(const MFraction& mfUser);
+
+void PrintMFraction(const MFraction& mf, string& strMF);
+
+void PrintResult(const MFraction& mf1, const string& strOperator, const MFraction& mf2, const MFraction& mfUser, const MFraction& mfCalc);
+
+
+
+
+int main()
+{
+	bool result = Initialize();
+	if (!result) 
+{
+		return -1;
+	}
+
+	result = Run();
+	if (!result) 
+{
+		return -1;
+	}
+
+	Shutdown();
+
+	return 0;
+}
+// Function declaration
+bool Initialize()
+{
+	//Print messages.
+	cout << endl;
+	cout << "Elizabeth Wen's Mixed Fractions Tutorial Program" << endl << endl;
+	cout << "Please follow instructions carefully." << endl;
+	cout << "Enter your operation like 1 1/2 + 1/4." << endl;
+	cout << "Enter 0/1 % 0/1 to stop the program." << endl;
+
+	return true;
+}
+
+// Final output of correct and incorrect answers
+void Shutdown()
+{
+	cout << endl;
+	cout << "You got " << g_MFracStats.m_CorrectlyAnsweredCount << " out of " << g_MFracStats.m_ValidTransactionCount << " correctly." << endl;
+
+	//For Extra Credit 2:
+	cout << endl;
+	if (g_MFracStats.m_WrongAnswers.size() > 0) 
+{
+		cout << "The problems with incorrect answers:" << endl;
+		vector<string>::size_type i = 0;
+		for (i = 0; i < g_MFracStats.m_WrongAnswers.size(); i++) 
+{
+			cout << g_MFracStats.m_WrongAnswers[i].c_str() << endl;
+		}
+
+		int mostWrongCount = g_MFracStats.m_WrongAdditionCount;
+		string mostWrongStr = "+";
+		
+if (g_MFracStats.m_WrongSubtractionCount > mostWrongCount) 
+{
+			mostWrongCount = g_MFracStats.m_WrongSubtractionCount;
+			mostWrongStr = "-";
+		}
+		else if (g_MFracStats.m_WrongSubtractionCount == mostWrongCount) 
+{
+			mostWrongStr = mostWrongStr + " and -";
+		}
+
+		if (g_MFracStats.m_WrongMultiplicationCount > mostWrongCount) 
+{
+			mostWrongCount = g_MFracStats.m_WrongMultiplicationCount;
+			mostWrongStr = "*";
+		}
+		else if (g_MFracStats.m_WrongMultiplicationCount == mostWrongCount) 
+{
+			mostWrongStr = mostWrongStr + " and *";
+		}
+
+		if (g_MFracStats.m_WrongDivisionCount > mostWrongCount) 
+{
+			mostWrongCount = g_MFracStats.m_WrongDivisionCount;
+			mostWrongStr = "/";
+		}
+		else if (g_MFracStats.m_WrongDivisionCount == mostWrongCount) 
+{
+			mostWrongStr = mostWrongStr + " and /";
+		}
+
+		cout << endl;
+		cout << "It seems you have the most problem with " << mostWrongStr << " operation(s)." << endl;
+	}
+	else 
+{
+		cout << "You answered all problems correctly." << endl;
+	}
+	cout << endl;
+}
+
+// Functions for main function operation
+bool Run()
+{
+	bool result = false;
+	bool exitFlag = false;
+
+	do 
+{
+		exitFlag = false;
+		MFraction mf1;
+		string strOperator = "";
+		MFraction mf2;
+		MFraction mfUser;
+		MFraction mfCalc;
+
+		result = GetUserInputs(mf1, strOperator, mf2, exitFlag);
+		if (!result) 
+{
+			continue;
+		}
+		//Check if it is time to quit.
+		if (exitFlag) 
+{
+			continue;
+		}
+
+		result = ValidateUserInputs(mf1, strOperator, mf2);
+		if (!result) 
+{
+			continue;
+		}
+
+		result = GetUserResult(mfUser);
+		if (!result) 
+{
+			continue;
+		}
+		result = ValidateUserResult(mfUser);
+		if (!result) 
+{
+			continue;
+		}
+
+		//Perform the operation.
+		if (strOperator == "+") 
+{
+			mfCalc = mf1 + mf2;
+		}
+		else if (strOperator == "-") 
+{
+			mfCalc = mf1 - mf2;
+		}
+		else if (strOperator == "*") 
+{
+			mfCalc = mf1 * mf2;
+		}
+		else if (strOperator == "/") 
+{
+			mfCalc = mf1 / mf2;
+		}
+		else 
+{
+			continue;
+		}
+
+		//Update statistics and print the operation.
+		g_MFracStats.m_ValidTransactionCount++;
+		PrintResult(mf1, strOperator, mf2, mfUser, mfCalc);
+
+	} while (exitFlag == false);
+
+	return true;
+}
+bool GetUserInputs(MFraction& mf1, string& strOperator, MFraction& mf2, bool& exitFlag)
+{
+	//Clear cin buffer.
+	cin.clear();
+	cin.ignore(cin.rdbuf()->in_avail(), '\n');
+
+	cout << endl;
+	cout << "Please enter your operation --> ";
+
+	//Get the first Mixed Fraction input.
+	cin >> mf1;
+
+	//Get the operator.
+	cin >> strOperator;
+
+	//Get the second Mixed Fraction input.
+	cin >> mf2;
+
+	//Check for exit condition.
+	MFraction mfExitCondition(0, 0, 1);
+
+	if ((mf1 == mfExitCondition) && (strOperator == "%") && (mf2 == mfExitCondition)) 
+{
+		exitFlag = true;
+		return true;
+	}
+
+	return true;
+}
+
+bool ValidateUserInputs(const MFraction& mf1, const string& strOperator, const MFraction& mf2)
+{
+	//Check if operator is '+' or '-' or '*' or '/'.
+	if ( (strOperator != "+") && (strOperator != "-") && (strOperator != "*") && (strOperator != "/") ) 
+{
+		cout << "ERROR: " << strOperator << " is an invalid operator." << endl;
+		return false;
+	}
+
+	//Check the first MFraction object.
+	if (mf1.getDenominator() == 0) 
+{
+		string strMF1;
+		PrintMFraction(mf1, strMF1);
+		cout << "ERROR: " << strMF1 << " is an invalid operand." << endl;
+		return false;
+	}
+
+	//Check the second MFraction object.
+	if (mf2.getDenominator() == 0) 
+{
+		string strMF2;
+		PrintMFraction(mf1, strMF2);
+		cout << "ERROR: " << strMF2 << " is an invalid operand." << endl;
+		return false;
+	}
+
+	return true;
+}
+
+
+bool GetUserResult(MFraction& mfUser)
+{
+	//Get the user result Mixed Fraction inputs.
+	cout << "Please enter your result    --> ";
+	cin >> mfUser;
+
+	return true;
+}
+
+
+// 
+bool ValidateUserResult(const MFraction& mfUser)
+{
+	//Check the user result MFraction object.
+	if (mfUser.getDenominator() == 0) 
+{
+		string strMFUser;
+		PrintMFraction(mfUser, strMFUser);
+		cout << "ERROR: " << strMFUser << " is an invalid operand." << endl;
+		return false;
+	}
+
+	return true;
+}
+
+// Function declaration
+void PrintMFraction(const MFraction& mf, string& strMF)
+{
+	char buffer[80];
+	if (mf.getWhole() != 0) 
+{
+		::sprintf_s(buffer, sizeof(buffer), "%d %d/%d", mf.getWhole(), mf.getNumerator(), mf.getDenominator());
+	}
+	else 
+{
+		::sprintf_s(buffer, sizeof(buffer), "%d/%d", mf.getNumerator(), mf.getDenominator());
+	}
+
+	strMF = buffer;
+}
+
+//Print out whether user’s answer is correct or not. Print out true answer, then its //floating point value
+void PrintResult(const MFraction& mf1, const string& strOperator, const MFraction& mf2, const MFraction& mfUser, const MFraction& mfCalc)
+{
+	string strMF1;
+	PrintMFraction(mf1, strMF1);
+	string strMF2;
+	PrintMFraction(mf2, strMF2);
+	string strMFCalc;
+	PrintMFraction(mfCalc, strMFCalc);
+
+	if (mfUser == mfCalc) 
+{
+		//User's answer matches calculated answer.
+		cout << "Congratulations! It is correct." << endl;
+		
+//Update statistics.
+		g_MFracStats.m_CorrectlyAnsweredCount++;
+	}
+	else 
+{
+		cout << "It is incorrect. The correct answer is" << endl;
+		
+//Update statistics, based on type of operation.
+		if (strOperator == "+") 
+{
+			g_MFracStats.m_WrongAdditionCount++;
+		}
+		else if (strOperator == "-") 
+{
+			g_MFracStats.m_WrongSubtractionCount++;
+		}
+		else if (strOperator == "*") 
+{
+			g_MFracStats.m_WrongMultiplicationCount++;
+		}
+		else if (strOperator == "/") 
+{
+			g_MFracStats.m_WrongDivisionCount++;
+		}
+		string strWrongAnswer = strMF1 + " " + strOperator + " " + strMF2;
+		g_MFracStats.m_WrongAnswers.push_back(strWrongAnswer);
+	}
+
+	cout << strMF1 << " " << strOperator << " " << strMF2 << " = " << strMFCalc << endl;
+	cout << "Its floating-point value is ";
+	mfCalc.printFloat();
+	cout << endl;
+}

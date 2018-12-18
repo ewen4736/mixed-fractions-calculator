@@ -1,0 +1,52 @@
+#pragma once
+
+class MFraction
+{
+public:
+	MFraction(int w = 0, int n =  0, int d = 1);
+	MFraction(const MFraction& mf);
+
+	~MFraction();
+
+	MFraction& setWhole(int n);
+	int getWhole() const;
+
+	MFraction& setNumerator(int n);
+	int getNumerator() const;
+
+	MFraction& setDenominator(int d);
+	int getDenominator() const;
+
+	MFraction operator+(const MFraction& mf) const;
+	MFraction operator-(const MFraction& mf) const;
+	MFraction operator*(const MFraction& mf) const;
+	MFraction operator/(const MFraction& mf) const;
+
+	//Negation operator
+	MFraction operator-() const;
+
+	friend istream& operator>>(istream& in, MFraction& mf);
+	friend ostream& operator<<(ostream& out, const MFraction& mf);
+
+	//Output MFraction in floating point format
+	void printFloat() const;
+
+	//Compare two MFractions
+	bool operator<(const MFraction& mf) const;
+	bool operator<=(const MFraction& mf) const;
+	bool operator>(const MFraction& mf) const;
+	bool operator>=(const MFraction& mf) const;
+	bool operator==(const MFraction& mf) const;
+
+private:
+	//Simplify a fraction into its proper form.
+	void simplify();
+
+private:
+	//It seems to be simpler to just store in fraction format.
+	//So there is no need to have a member data for the whole number.
+	int m_W; //Whole number
+	int m_N; //Numerator
+	int m_D; //Denominator
+};
+

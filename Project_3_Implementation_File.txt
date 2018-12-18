@@ -1,0 +1,784 @@
+MFraction::MFraction(int w, int n, int d)
+{
+	m_W = w;
+	m_N = n;
+	m_D = d;
+
+	simplify();
+}
+MFraction::MFraction(const MFraction& mf)
+{
+	m_W = mf.m_W;
+	m_N = mf.m_N;
+	m_D = mf.m_D;
+
+	simplify();
+}
+
+MFraction::~MFraction(void)
+{
+}
+
+MFraction& MFraction::setWhole(int n)
+{
+	m_W = n;
+	simplify();
+	return *this;
+}
+
+int MFraction::getWhole() const
+{
+	return m_W;
+}
+
+MFraction& MFraction::setNumerator(int n)
+{
+	m_N = n;
+	simplify();
+	return *this;
+}
+int MFraction::getNumerator() const
+{
+	return m_N;
+}
+
+MFraction& MFraction::setDenominator(int d)
+{
+	m_D = d;
+	simplify();
+	return *this;
+}
+
+int MFraction::getDenominator() const
+{
+	return m_D;
+}
+
+MFraction MFraction::operator+(const MFraction& mf) const
+{
+	MFraction tmf;
+
+	int w1 = this->m_W;
+	int n1 = this->m_N;
+	int d1 = this->m_D;
+
+	int w2 = mf.m_W;
+	int n2 = mf.m_N;
+	int d2 = mf.m_D;
+
+	//Must have NON-ZERO common denominator. Check it.
+	if ( (d1 != 0) && (d2 != 0) ) 
+{
+		//Convert to fraction only.
+		if (w1 != 0) 
+{
+			if (w1 < 0) 
+{
+				n1 = (w1 * d1) - n1;
+			}
+			else 
+{
+				n1 = (w1 * d1) + n1;
+			}
+		}
+		if (w2 != 0) 
+{
+			if (w2 < 0) 
+{
+				n2 = (w2 * d2) - n2;
+			}
+			else 
+{
+				n2 = (w2 * d2) + n2;
+			}
+		}
+
+		if (d1 != d2) 
+{
+			//Multiply the denominators to produce common denominator.
+			//Then add the numerators after making adjustments to the common 				denominator.
+			int commonD = d1 * d2;
+			int n1a = n1 * d2;
+			int n2a = n2 * d1;
+
+			tmf.m_D = commonD;
+			tmf.m_N = (n1 * d2) + (n2 * d1);
+		}
+		else 
+{
+			//Denominator is now common. Now add the numerators.
+			tmf.m_D = d1;
+			tmf.m_N = n1 + n2;
+		}
+
+		//Simplify the resulting fraction.
+		tmf.simplify();
+	}
+
+	return tmf;
+}
+MFraction MFraction::operator-(const MFraction& mf) const
+{
+	MFraction tmf;
+
+	int w1 = this->m_W;
+	int n1 = this->m_N;
+	int d1 = this->m_D;
+
+	int w2 = mf.m_W;
+	int n2 = mf.m_N;
+	int d2 = mf.m_D;
+
+	//Must have NON-ZERO common denominator. Check it.
+	if ( (d1 != 0) && (d2 != 0) ) 
+{
+		//Convert to fraction only.
+		if (w1 != 0) 
+{
+			if (w1 < 0) 
+{
+				n1 = (w1 * d1) - n1;
+			}
+			else 
+{
+				n1 = (w1 * d1) + n1;
+			}
+		}
+		if (w2 != 0) 
+{
+			if (w2 < 0) 
+{
+				n2 = (w2 * d2) - n2;
+			}
+			else 
+{
+				n2 = (w2 * d2) + n2;
+			}
+		}
+
+		if (d1 != d2) 
+{
+			//Multiply the denominators to produce common denominator.
+//Then subtract the numerators after making adjustments to the common denominator.
+			int commonD = d1 * d2;
+			int n1a = n1 * d2;
+			int n2a = n2 * d1;
+
+			tmf.m_D = commonD;
+			tmf.m_N = (n1 * d2) - (n2 * d1);
+		}
+		else {
+			//Denominator is now common. Now add subtract the numerators.
+			tmf.m_D = d1;
+			tmf.m_N = n1 - n2;
+		}
+
+		//Simplify the resulting fraction.
+		tmf.simplify();
+	}
+
+	return (tmf);
+}
+
+MFraction MFraction::operator*(const MFraction& mf) const
+{
+	MFraction tmf;
+
+	int w1 = this->m_W;
+	int n1 = this->m_N;
+	int d1 = this->m_D;
+
+	int w2 = mf.m_W;
+	int n2 = mf.m_N;
+	int d2 = mf.m_D;
+
+	//Must have NON-ZERO denominators. Check it.
+	if ( (d1 != 0) && (d2 != 0) ) 
+{
+		//Convert to fraction only.
+		if (w1 != 0) 
+{
+			if (w1 < 0) 
+{
+				n1 = (w1 * d1) - n1;
+			}
+			else 
+{
+				n1 = (w1 * d1) + n1;
+			}
+		}
+		if (w2 != 0) 
+{
+			if (w2 < 0) 
+{
+				n2 = (w2 * d2) - n2;
+			}
+			else 
+{
+				n2 = (w2 * d2) + n2;
+			}
+		}
+
+		//Simply multiply the two numerators and the two denominators.
+		tmf.m_N = n1 * n2;
+		tmf.m_D = d1 * d2;
+
+		//Simplify the resulting fraction.
+		tmf.simplify();
+	}
+
+	return tmf;
+}
+
+MFraction MFraction::operator/(const MFraction& mf) const
+{
+	MFraction tmf;
+
+	//Note: N1/D1 divided by N2/D2 is equal to 
+	//	N1/D1 multiplied by D2/N2
+
+	int w1 = this->m_W;
+	int n1 = this->m_N;
+	int d1 = this->m_D;
+
+	int w2 = mf.m_W;
+	int n2 = mf.m_N;
+	int d2 = mf.m_D;
+
+	//Must have NON-ZERO denominators. Check it.
+	if ( (d1 != 0) && (d2 != 0) ) 
+{
+		//Convert to fraction only.
+		if (w1 != 0) 
+{
+			if (w1 < 0) 
+{
+				n1 = (w1 * d1) - n1;
+			}
+			else 
+{
+				n1 = (w1 * d1) + n1;
+			}
+		}
+		if (w2 != 0) 
+{
+			if (w2 < 0) 
+{
+				n2 = (w2 * d2) - n2;
+			}
+			else 
+{
+				n2 = (w2 * d2) + n2;
+			}
+		}
+
+		//Since we flip N2/D2 to D2/N2, N2 becomes the denominator.
+		tmf.m_N = n1 * d2;
+		tmf.m_D = d1 * n2;
+
+		//Simplify the resulting fraction.
+		tmf.simplify();
+	}
+
+	return tmf;
+}
+
+//Negation operator
+MFraction MFraction::operator-() const
+{
+	MFraction tmf;
+
+	if (this->m_W != 0) 
+{
+		//Negate the whole number.
+		tmf.m_N = -1 * this->m_N;
+	}
+	else 
+{
+		//Simply negate the numerator.
+		tmf.m_N = -1 * this->m_N;
+	}
+	tmf.m_D = this->m_D;
+
+	//Simplify the resulting fraction.
+	tmf.simplify();
+
+	return tmf;
+}
+
+istream& operator>>(istream& in, MFraction& mf)
+{
+	string inp1 = "";
+	string inp2 = "";
+
+	int w = 0;
+	int n = 0;
+	int d = 0;
+
+	in >> inp1;
+	string::size_type index1 = inp1.find('/');
+	if (index1 != string::npos) 
+{
+		//We don't have the whole number.
+		n = atoi(inp1.substr(0, index1).c_str());
+		d = atoi(inp1.substr(index1 + 1).c_str());
+	}
+	else 
+{
+		//We have the whole number.
+		w = atoi(inp1.c_str());
+		in >> inp2;
+		string::size_type index2 = inp2.find('/');
+		if (index2 != string::npos) 
+{
+			//Fraction part.
+			n = atoi(inp2.substr(0, index2).c_str());
+			d = atoi(inp2.substr(index2 + 1).c_str());
+		}
+		else 
+{
+			//Invalid input!
+		}
+	}
+
+	//Save into the MFraction object mf.
+	mf.m_W = w;
+	mf.m_N = n;
+	mf.m_D = d;
+
+	//Simplify the resulting fraction.
+	mf.simplify();
+
+	return in;
+}
+ostream& operator<<(ostream& out, const MFraction& mf)
+{
+	int w = mf.m_W;
+	int n = mf.m_N;
+	int d = mf.m_D;
+
+	//If numerator is bigger than denominator, set aside the whole number.
+	if (n > d) 
+{
+		w = w + n / d;
+		n = n % d;
+	}
+
+	if (w > 0) 
+{
+		out << w << ' ';
+	}
+	out << n << '/' << d << endl;
+
+	return out;
+}
+
+//Output MFraction in floating point format
+void MFraction::printFloat() const
+{
+	int w = this->m_W;
+	int n = this->m_N;
+	int d = this->m_D;
+
+	if (d != 0) 
+{
+		if (w < 0) 
+{
+			n = w * d - n;
+		}
+		else if (w > 0) 
+{
+			n = w * d + n;
+		}
+
+		//std::cout << std::fixed << std::setw( 11 ) << std::setprecision( 6 ) << my_double;
+		float f = (float)n / (float)d;
+		cout << setiosflags(ios::fixed) << setprecision(2) << f;
+	}
+	else 
+{
+		cout << "INVALID";
+	}
+}
+
+//Compare two MFractions
+bool MFraction::operator<(const MFraction& mf) const
+{
+	bool result = false;
+
+	int w1 = this->m_W;
+	int n1 = this->m_N;
+	int d1 = this->m_D;
+
+	int w2 = mf.m_W;
+	int n2 = mf.m_N;
+	int d2 = mf.m_D;
+
+	//Must have NON-ZERO common denominator. Check it.
+	if ( (d1 != 0) && (d2 != 0) ) 
+{
+		//Convert to fraction only.
+		if (w1 != 0) 
+{
+			if (w1 < 0) 
+{
+				n1 = (w1 * d1) - n1;
+			}
+			else 
+{
+				n1 = (w1 * d1) + n1;
+			}
+		}
+		if (w2 != 0) 
+{
+			if (w2 < 0) 
+{
+				n2 = (w2 * d2) - n2;
+			}
+			else 
+{
+				n2 = (w2 * d2) + n2;
+			}
+		}
+
+		if (d1 != d2) 
+{
+			//Multiply the denominators to produce common denominator.
+			//Then compare the numerators after making adjustments to the common denominator.
+			int commonD = d1 * d2;
+			int n1a = n1 * d2;
+			int n2a = n2 * d1;
+			if (n1a < n2a) 
+{
+				result = true;
+			}
+		}
+		else 
+{
+			//Denominator is already common. Simply compare the numerators.
+			if (n1 < n2) 
+{
+				result = true;
+			}
+		}
+	}
+
+	return result;
+}
+
+bool MFraction::operator<=(const MFraction& mf) const
+{
+	bool result = false;
+
+	int w1 = this->m_W;
+	int n1 = this->m_N;
+	int d1 = this->m_D;
+
+	int w2 = mf.m_W;
+	int n2 = mf.m_N;
+	int d2 = mf.m_D;
+
+	//Must have NON-ZERO common denominator. Check it.
+	if ( (d1 != 0) && (d2 != 0) ) 
+{
+		//Convert to fraction only.
+		if (w1 != 0) 
+{
+			if (w1 < 0) 
+{
+				n1 = (w1 * d1) - n1;
+			}
+			else 
+{
+				n1 = (w1 * d1) + n1;
+			}
+		}
+		if (w2 != 0) 
+{
+			if (w2 < 0) 
+{
+				n2 = (w2 * d2) - n2;
+			}
+			else 
+{
+				n2 = (w2 * d2) + n2;
+			}
+		}
+
+		if (d1 != d2) 
+{
+			//Multiply the denominators to produce common denominator.
+//Then compare the numerators after making adjustments to the common denominator.
+			int commonD = d1 * d2;
+			int n1a = n1 * d2;
+			int n2a = n2 * d1;
+			if (n1a <= n2a) 
+{
+				result = true;
+			}
+		}
+		else 
+{
+			//Denominator is already common. Simply compare the numerators.
+			if (n1 <= n2) 
+{
+				result = true;
+			}
+		}
+	}
+
+	return result;
+}
+
+bool MFraction::operator>(const MFraction& mf) const
+{
+	bool result = false;
+
+	int w1 = this->m_W;
+	int n1 = this->m_N;
+	int d1 = this->m_D;
+
+	int w2 = mf.m_W;
+	int n2 = mf.m_N;
+	int d2 = mf.m_D;
+
+	//Must have NON-ZERO common denominator. Check it.
+	if ( (d1 != 0) && (d2 != 0) ) 
+{
+		//Convert to fraction only.
+		if (w1 != 0) 
+{
+			if (w1 < 0) 
+{
+				n1 = (w1 * d1) - n1;
+			}
+			else 
+{
+				n1 = (w1 * d1) + n1;
+			}
+		}
+		if (w2 != 0) 
+{
+			if (w2 < 0) 
+{
+				n2 = (w2 * d2) - n2;
+			}
+			else 
+{
+				n2 = (w2 * d2) + n2;
+			}
+		}
+
+		if (d1 != d2) 
+{
+			//Multiply the denominators to produce common denominator.
+//Then compare the numerators after making adjustments to the common denominator.
+			int commonD = d1 * d2;
+			int n1a = n1 * d2;
+			int n2a = n2 * d1;
+			if (n1a > n2a) 
+{
+				result = true;
+			}
+		}
+		else 
+{
+			//Denominator is already common. Simply compare the numerators.
+			if (n1 > n2) 
+{
+				result = true;
+			}
+		}
+	}
+
+	return result;
+}
+bool MFraction::operator>=(const MFraction& mf) const
+{
+	bool result = false;
+
+	int w1 = this->m_W;
+	int n1 = this->m_N;
+	int d1 = this->m_D;
+
+	int w2 = mf.m_W;
+	int n2 = mf.m_N;
+	int d2 = mf.m_D;
+
+	//Must have NON-ZERO common denominator. Check it.
+	if ( (d1 != 0) && (d2 != 0) ) 
+{
+		//Convert to fraction only.
+		if (w1 != 0) 
+{
+			if (w1 < 0) 
+{
+				n1 = (w1 * d1) - n1;
+			}
+			else 
+{
+				n1 = (w1 * d1) + n1;
+			}
+		}
+		if (w2 != 0) 
+{
+			if (w2 < 0) 
+{
+				n2 = (w2 * d2) - n2;
+			}
+			else 
+{
+				n2 = (w2 * d2) + n2;
+			}
+		}
+
+		if (d1 != d2) 
+{
+			//Multiply the denominators to produce common denominator.
+			//Then compare the numerators after making adjustments to the common denominator.
+			int commonD = d1 * d2;
+			int n1a = n1 * d2;
+			int n2a = n2 * d1;
+			if (n1a >= n2a) 
+{
+				result = true;
+			}
+		}
+		else 
+{
+			//Denominator is already common. Simply compare the numerators.
+			if (n1 >= n2) 
+{
+				result = true;
+			}
+		}
+	}
+
+	return result;
+}
+
+bool MFraction::operator==(const MFraction& mf) const
+{
+	bool equal = false;
+
+	if ( (mf.m_W == this->m_W) && (mf.m_N == this->m_N) && (mf.m_D == this->m_D) ) 
+{
+		equal = true;
+	}
+
+	return (equal);
+}
+
+//Simplify a fraction into its proper form.
+void MFraction::simplify()
+{
+	if (m_N == 0) 
+{
+		//The fraction is 0. Nothing to simplify.
+		return;
+	}
+
+	if (m_D == 0) 
+{
+		//Invalid fraction.
+		return;
+	}
+
+	int w = m_W;
+	int n = m_N;
+	int d = m_D;
+
+	//Take care of the negative values. Two negatives will cancel each other.
+	if (w < 0) 
+{
+		if ( (d < 0) && (n < 0) ) 
+{
+			n = -1 * n;
+			d = -1 * d;
+		}
+		else if (d < 0) 
+{
+			w = -1 * w;
+			d = -1 * d;
+		}
+		else if (n < 0) 
+{
+			w = -1 * w;
+			n = -1 * n;
+		}
+	}
+	else 
+{
+		if (d < 0) 
+{
+			//Flip the negative to the numerator.
+			d = -1 * d;
+			n = -1 * n;
+		}
+	}
+
+	//If numerator is negative, temporarily convert to positive during 
+	//simplification process.
+	bool negativeN = false;
+	if (n < 0) 
+{
+		negativeN = true;
+		n = -1 * n;
+	}
+
+	//If numerator is bigger than denominator, set aside the whole number.
+	if (n > d) 
+{
+		if (w < 0) 
+{
+			w = w - n / d;
+		}
+		else 
+{
+			w = w + n / d;
+		}
+		n = n % d;
+	}
+
+	bool repeat = false;
+	int lastCommonDiv = n;
+	do 
+{
+		repeat = false;
+
+		int i = 0;
+		//The following loop should stop at 1, not 0.
+		for (i = lastCommonDiv; i > 1; i--) 
+{
+			if ( ( (n % i) == 0 ) && ( (d % i) == 0 ) ) 
+{
+				n = n / i;
+				d = d / i;
+				lastCommonDiv = i;
+				repeat = true;
+				break;
+			}
+		}
+
+	} while (repeat);
+
+	//Save the simplified fraction, including the whole number if there is one.
+	m_W = w;
+	if (w != 0) 
+{
+		if (negativeN) 
+{
+			m_W = -w;
+		}
+		m_N = n;
+	}
+	else 
+{
+		m_N = n;
+		if (negativeN) 
+{
+			m_N = -n;
+		}
+	}
+	m_D = d;
+}
